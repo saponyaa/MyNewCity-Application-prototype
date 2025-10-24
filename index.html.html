@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>My New City</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+<style>
+  :root{
+    --orange:#ff7a00;
+    --grey:#555;
+    --light:#fff6ef;
+    --turquoise:#00bfa5;
+    --text:#444;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family: "Poppins",system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial,sans-serif;
+    color:var(--text);
+    background: linear-gradient(180deg, #fff 0%, #fff8f1 40%, #fff3e7 100%);
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+
+  /* Header */
+  header{
+    position:sticky;top:0;z-index:10;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 20px;background:#fff;border-bottom:1px solid #eee;
+    box-shadow:0 1px 8px rgba(0,0,0,.05);
+  }
+  header .brand{
+    color:var(--orange);font-weight:700;letter-spacing:.4px;cursor:pointer;
+  }
+  header .hamburger{font-size:22px;color:#777;cursor:pointer}
+
+  /* Sidebar */
+  #sidebar{
+    position:fixed;left:-270px;top:0;height:100%;width:260px;background:#fff;
+    box-shadow:2px 0 10px rgba(0,0,0,.12);padding:20px;transition:left .28s ease;z-index:30;
+  }
+  #sidebar.active{left:0}
+  #sidebar h3{color:var(--orange);margin-bottom:12px}
+  #sidebar hr{border:0;border-top:1px solid #eee;margin:12px 0}
+  #sidebar ul{list-style:none}
+  #sidebar li{
+    display:flex;gap:10px;align-items:center;
+    padding:10px 6px;border-radius:10px;color:#555;cursor:pointer;
+    transition:background .15s,color .15s;
+  }
+  #sidebar li:hover{background:#fff3e6;color:var(--orange)}
+  #overlay{
+    display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:20;
+  }
+  #overlay.active{display:block}
+
+  /* Screens */
+  .screen{display:none;padding:40px 18px;animation:fade .45s ease}
+  .screen.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+  h1{color:var(--orange);font-size:2.2rem;margin-bottom:6px}
+  h2{color:var(--orange);font-size:1.6rem;margin-bottom:8px}
+  p.lead{color:#666;margin-bottom:6px}
+
+  /* Welcome */
+  .welcome-wrap{max-width:680px;margin:0 auto;text-align:center}
+  .hero-img{
+    width:min(90%,560px);height:auto;margin:26px auto 18px;display:block;
+    border-radius:26px;box-shadow:0 10px 26px rgba(0,0,0,.15);object-fit:cover;background:none;
+  }
+  select, input[type="text"]{
+    width:95%;max-width:360px;padding:12px;border:1px solid #ddd;border-radius:12px;
+    box-shadow:0 2px 6px rgba(0,0,0,.04);font-size:15px;margin:8px auto;display:block;
+  }
+  .btn{
+    display:inline-block;background:var(--orange);color:#fff;border:none;border-radius:30px;
+    padding:14px 36px;font-weight:600;font-size:1.05rem;cursor:pointer;
+    box-shadow:0 10px 18px rgba(255,122,0,.28);transition:transform .15s, background .2s;
+    margin-top:14px;
+  }
+  .btn:hover{background:#e96b00;transform:translateY(-2px)}
+
+  /* Dashboard */
+  .card-shell{
+    max-width:900px;margin:0 auto;background:#fff;border-radius:16px;
+    box-shadow:0 6px 18px rgba(0,0,0,.06);padding:18px 16px;
+  }
+  .dash-head{
+    display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;
+    border-bottom:1px solid #f0e6dc;padding-bottom:10px;margin-bottom:16px;
+  }
+  .dash-head .badge{
+    background:#fff0e1;color:#c65b00;border:1px solid #ffd5ad;border-radius:999px;
+    padding:6px 12px;font-size:.9rem;font-weight:600
+  }
+  .grid{
+    display:grid;gap:14px;grid-template-columns:repeat(auto-fit, minmax(240px,1fr));
+  }
+  .card{
+    background:#fff7ef;border:1px solid #ffe2c8;border-radius:14px;padding:14px;
+    box-shadow:0 2px 8px rgba(0,0,0,.04);
+    transition:transform .12s, box-shadow .12s, background .12s;
+    text-align:left;
+  }
+  .card:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(0,0,0,.08);background:#fff3e6}
+  .card h4{font-size:1.05rem;margin-bottom:6px}
+  .card p{font-size:.95rem;color:#666;margin-bottom:10px}
+  .card .mini{font-size:.9rem;color:#007c6a}
+  .pill{
+    display:inline-flex;align-items:center;gap:6px;margin-bottom:8px;
+    padding:6px 10px;border-radius:999px;background:#fff;border:1px solid #ffe0c4;color:#a04c00;font-weight:600
+  }
+
+  /* City page */
+  .city-wrap{max-width:960px;margin:0 auto}
+  .city-hero{
+    width:100%;border-radius:16px;box-shadow:0 8px 20px rgba(0,0,0,.12);margin:8px 0 14px;
+  }
+  .info-list{max-width:720px;margin:10px auto 18px;padding-left:0;list-style:none}
+  .info-list li{padding:8px 0;border-bottom:1px dashed #f0d8c2}
+  iframe.map{width:100%;height:360px;border:0;border-radius:14px;box-shadow:0 8px 18px rgba(0,0,0,.08)}
+
+  /* Chat floating button */
+  #chat-btn{
+    position:fixed;right:22px;bottom:22px;width:60px;height:60px;border-radius:50%;
+    background:var(--orange);color:#fff;border:none;display:flex;align-items:center;justify-content:center;
+    font-size:26px;cursor:pointer;z-index:60;animation:pulse 2s infinite;box-shadow:0 10px 20px rgba(255,122,0,.35);
+    transition:transform .15s;
+  }
+  #chat-btn:hover{transform:scale(1.06)}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,122,0,.35)} 70%{box-shadow:0 0 0 16px rgba(255,122,0,0)} 100%{box-shadow:0 0 0 0 rgba(255,122,0,0)}}
+
+  /* Chat box */
+  #chat-box{
+    display:none;position:fixed;right:22px;bottom:92px;width:330px;background:#fff;border-radius:16px;
+    box-shadow:0 16px 28px rgba(0,0,0,.22);overflow:hidden;z-index:70;flex-direction:column;
+  }
+  #chat-box header{background:var(--orange);color:#fff;padding:10px 12px;font-weight:700}
+  #chat-messages{height:260px;overflow:auto;padding:10px 12px}
+  #chat-input{display:flex;border-top:1px solid #eee}
+  #chat-input input{flex:1;padding:12px;border:0;font-size:14px}
+  #chat-input button{background:var(--turquoise);color:#fff;border:0;padding:0 14px}
+
+  /* Responsiveness tweaks */
+  @media (max-width:600px){
+    .hero-img{max-width:320px}
+    #chat-box{width:92vw;right:4vw}
+  }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside id="sidebar">
+  <h3>Menu</h3>
+  <ul>
+    <li onclick="nav('dashboard')"><i class="fa-solid fa-house"></i> Home</li>
+    <li onclick="nav('city')"><i class="fa-solid fa-city"></i> About the City</li>
+    <li onclick="nav('events')"><i class="fa-solid fa-champagne-glasses"></i> Events & Community</li>
+    <hr>
+    <li onclick="nav('documents')"><i class="fa-solid fa-id-card"></i> Documents</li>
+    <li onclick="nav('housing')"><i class="fa-solid fa-house-user"></i> Housing</li>
+    <li onclick="nav('work')"><i class="fa-solid fa-briefcase"></i> Work</li>
+    <li onclick="nav('education')"><i class="fa-solid fa-book-open"></i> Education</li>
+    <li onclick="nav('health')"><i class="fa-solid fa-user-nurse"></i> Health</li>
+  </ul>
+</aside>
+<div id="overlay" onclick="toggleMenu()"></div>
+
+<!-- Header -->
+<header>
+  <div class="hamburger" onclick="toggleMenu()"><i class="fa-solid fa-bars"></i></div>
+  <div class="brand" onclick="show('city')">My New City</div>
+</header>
+
+<!-- Welcome Screen -->
+<section id="welcome" class="screen active">
+  <div class="welcome-wrap">
+    <h1>Welcome to My New City</h1>
+    <p class="lead">Discover, connect, and make your start in a new city easier.</p>
+    <img class="hero-img" src="C:\Users\user\Desktop\Application for immigrants\image.jpg" alt="Warsaw skyline">
+    <p style="margin-top:6px">Select your language:</p>
+    <select id="lang">
+      <option>English</option>
+      <option>Polish</option>
+      <option>Ukrainian</option>
+      <option>Russian</option>
+    </select>
+    <button class="btn" onclick="show('onboarding')">Get Started</button>
+  </div>
+</section>
+
+<!-- Onboarding -->
+<section id="onboarding" class="screen">
+  <div class="welcome-wrap" style="max-width:560px">
+    <h2>Let's Get to Know You</h2>
+    <p style="margin:6px 0 4px">Who are you?</p>
+    <select id="userType">
+      <option>Student</option><option>Worker</option><option>Family</option><option>Tourist</option>
+    </select>
+    <p style="margin:6px 0 4px">What do you need help with most?</p>
+    <select id="need">
+      <option>Documents</option><option>Housing</option><option>Health</option><option>Jobs</option><option>Education</option>
+    </select>
+    <button class="btn" onclick="saveUser()">Continue →</button>
+  </div>
+</section>
+
+<!-- Personalized Dashboard -->
+<section id="dashboard" class="screen">
+  <div class="card-shell">
+    <div class="dash-head">
+      <h2 style="margin:0">Personalized Dashboard</h2>
+      <span class="badge" id="badge-need">Need: —</span>
+    </div>
+    <div id="personalized-content" class="grid"></div>
+  </div>
+</section>
+
+<!-- Documents placeholder (if navigated from menu directly) -->
+<section id="documents" class="screen">
+  <div class="card-shell">
+    <div class="dash-head">
+      <h2 style="margin:0">Documents</h2>
+      <span class="badge">Warsaw</span>
+    </div>
+    <div class="grid" id="docs-grid"></div>
+  </div>
+</section>
+
+<!-- Housing placeholder -->
+<section id="housing" class="screen">
+  <div class="card-shell">
+    <div class="dash-head">
+      <h2 style="margin:0">Housing</h2>
+      <span class="badge">Warsaw</span>
+    </div>
+    <div class="grid" id="housing-grid"></div>
+  </div>
+</section>
+
+<!-- Work placeholder -->
+<section id="work" class="screen">
+  <div class="card-shell">
+    <div class="dash-head">
+      <h2 style="margin:0">Work</h2>
+      <span class="badge">Warsaw</span>
+    </div>
+    <div class="grid" id="work-grid"></div>
+  </div>
+</section>
+
+<!-- Education placeholder -->
+<section id="education" class="screen">
+  <div class="card-shell">
+    <div class="dash-head">
+      <h2 style="margin:0">Education</h2>
+      <span class="badge">Warsaw</span>
+    </div>
+    <div class="grid" id="edu-grid"></div>
+  </div>
+</section>
+
+<!-- Health placeholder -->
+<section id="health" class="screen">
+  <div class="card-shell">
+    <div class="dash-head">
+      <h2 style="margin:0">Health</h2>
+      <span class="badge">Warsaw</span>
+    </div>
+    <div class="grid" id="health-grid"></div>
+  </div>
+</section>
+
+<!-- Events (simple sample) -->
+<section id="events" class="screen">
+  <div class="card-shell">
+    <div class="dash-head">
+      <h2 style="margin:0">Events & Community</h2>
+      <span class="badge">Warsaw</span>
+    </div>
+    <input type="text" id="searchEvents" placeholder="Search events..." oninput="filterEvents()" />
+    <div class="grid" id="eventList"></div>
+  </div>
+</section>
+
+<!-- About the City (Warsaw) -->
+<section id="city" class="screen">
+  <div class="city-wrap">
+    <h2>🌆 About Warsaw</h2>
+    <img class="city-hero" src="C:\Users\user\Desktop\Application for immigrants\prototypeimage1.png" alt="Warsaw">
+    <p class="lead">Warsaw is Poland’s capital — a dynamic hub of culture, education, and innovation.</p>
+    <ul class="info-list">
+      <li>📍 Location: Central Poland</li>
+      <li>👥 Population: ~1.8 million</li>
+      <li>💬 Language: Polish (English widely used in universities/services)</li>
+      <li>💰 Currency: Polish złoty (PLN)</li>
+      <li>🚨 Emergency: 112</li>
+      <li>🚇 Transport: ZTM buses & metro, SKM trains, city bikes</li>
+    </ul>
+    <iframe class="map"
+      src="https://www.google.com/maps?q=Warsaw,Poland&z=12&output=embed"
+      allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+  </div>
+</section>
+
+<!-- Chat Floating Button -->
+<button id="chat-btn" aria-label="Open chat"><i class="fa-solid fa-comments"></i></button>
+
+<!-- Chat Box -->
+<div id="chat-box">
+  <header>City Assistant</header>
+  <div id="chat-messages"></div>
+  <div id="chat-input">
+    <input id="chat-text" placeholder="Ask something... (PESEL, housing, jobs)"/>
+    <button onclick="sendMsg()">➤</button>
+  </div>
+</div>
+
+<script>
+  /* Sidebar toggle */
+  function toggleMenu(){
+    document.getElementById('sidebar').classList.toggle('active');
+    document.getElementById('overlay').classList.toggle('active');
+  }
+  function nav(id){ show(id); toggleMenu(); }
+
+  /* Screen switch */
+  const screens=document.querySelectorAll('.screen');
+  function show(id){
+    screens.forEach(s=>s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo(0,0);
+  }
+
+  /* Chat toggle */
+  const chatBtn=document.getElementById('chat-btn');
+  const chatBox=document.getElementById('chat-box');
+  chatBtn.addEventListener('click',()=>{
+    chatBox.style.display = (chatBox.style.display==='flex'?'none':'flex');
+    chatBox.style.flexDirection='column';
+  });
+
+  /* Chat logic (simple keywords) */
+  function sendMsg(){
+    const input=document.getElementById('chat-text');
+    const msg=input.value.trim();
+    if(!msg) return;
+    const log=document.getElementById('chat-messages');
+    const me=document.createElement('div'); me.textContent='👤 '+msg; log.appendChild(me);
+
+    const bot=document.createElement('div'); bot.style.marginTop='6px'; bot.style.color='#007c6a';
+    const m=msg.toLowerCase();
+    if(m.includes('pesel')) bot.textContent='🤖 PESEL in Warsaw: apply at your district City Office with ID and residence proof.';
+    else if(m.includes('trc')||m.includes('residence')) bot.textContent='🤖 TRC: Book a visit at the Mazovian Voivodeship Office. Bring photos, insurance, and application.';
+    else if(m.includes('housing')||m.includes('rent')) bot.textContent='🤖 Housing: check dorms (PW, UW) and rentals on Otodom/OLX. Beware of deposits and contracts.';
+    else if(m.includes('job')||m.includes('work')) bot.textContent='🤖 Jobs: try praca.gov.pl, JustJoin.it, LinkedIn. For permits, see Voivodeship Office.';
+    else bot.textContent='🤖 Ask about PESEL, TRC, housing, jobs, clinics, or events.';
+    log.appendChild(bot); log.scrollTop=log.scrollHeight; input.value='';
+  }
+
+  /* Store onboarding & personalize dashboard */
+  function saveUser(){
+    const userType=document.getElementById('userType').value;
+    const need=document.getElementById('need').value;
+    localStorage.setItem('userType',userType);
+    localStorage.setItem('need',need);
+    personalizeDashboard();
+    show('dashboard');
+  }
+
+  const contentMap = {
+    Documents: [
+      {icon:'🪪', title:'PESEL Registration', desc:'Register your PESEL in the Warsaw City Office (Urząd m.st. Warszawy).', cta:'Learn how'},
+      {icon:'📄', title:'Temporary Residence Card (TRC)', desc:'Apply at Mazowiecki Urząd Wojewódzki. Prepare photos, insurance, fees.', cta:'Steps & checklist'},
+      {icon:'🛂', title:'Visa & Extensions', desc:'General visa rules and legal stay extensions in Poland.', cta:'See options'}
+    ],
+    Housing: [
+      {icon:'🏘', title:'Student Dormitories', desc:'Dorms at Warsaw University (UW) & Warsaw University of Technology (PW).', cta:'View dorm list'},
+      {icon:'🏠', title:'Rental Apartments', desc:'Find rentals on Otodom, OLX. Check contract, deposit, and utilities.', cta:'Browse portals'},
+      {icon:'🏢', title:'Municipal Help', desc:'City support for temporary or social housing (MOPS info).', cta:'Where to apply'}
+    ],
+    Jobs: [
+      {icon:'💼', title:'Find Jobs', desc:'Search roles on praca.gov.pl, JustJoin.it, NoFluffJobs, LinkedIn.', cta:'Open platforms'},
+      {icon:'📝', title:'CV & Interview', desc:'CV templates and tips for interviews in Poland.', cta:'Get tips'},
+      {icon:'🛂', title:'Work Permit', desc:'Check permit types and employer requirements in Mazovia.', cta:'Permit info'}
+    ],
+    Education: [
+      {icon:'🎓', title:'Universities in Warsaw', desc:'Explore UW, PW, SGH, and others — programs & admissions.', cta:'See universities'},
+      {icon:'🗣', title:'Polish Language Courses', desc:'Public & private courses for A1–C1 levels.', cta:'Find a course'},
+      {icon:'📜', title:'Diploma Recognition', desc:'How to recognize foreign diplomas in Poland.', cta:'Learn process'}
+    ],
+    Health: [
+      {icon:'🏥', title:'Clinics & NFZ', desc:'Register with a GP (POZ) and understand NFZ insurance.', cta:'Where to start'},
+      {icon:'💊', title:'Pharmacies (24/7)', desc:'Locate 24-hour pharmacies around you.', cta:'Find nearby'},
+      {icon:'🚑', title:'Emergency & Hotlines', desc:'Dial 112. Key hotlines for legal & psychological support.', cta:'View numbers'}
+    ]
+  };
+
+  function renderCards(containerId, items){
+    const container=document.getElementById(containerId);
+    container.innerHTML='';
+    items.forEach(it=>{
+      const el=document.createElement('div');
+      el.className='card';
+      el.innerHTML = `
+        <div class="pill">${it.icon} <span>${it.title}</span></div>
+        <h4>${it.title}</h4>
+        <p>${it.desc}</p>
+        <span class="mini">${it.cta} →</span>
+      `;
+      container.appendChild(el);
+    });
+  }
+
+  function personalizeDashboard(){
+    const userType=localStorage.getItem('userType')||'—';
+    let need=localStorage.getItem('need')||'Documents';
+    // normalize "Jobs" vs "Work"
+    if(need==='Work') need='Jobs';
+    document.getElementById('badge-need').textContent=`Need: ${need}`;
+    // render to main dashboard grid
+    const items = contentMap[need] || contentMap.Documents;
+    renderCards('personalized-content', items);
+  }
+
+  // Fill grids for direct menu pages (optional)
+  function renderStaticSections(){
+    renderCards('docs-grid', contentMap.Documents);
+    renderCards('housing-grid', contentMap.Housing);
+    renderCards('work-grid', contentMap.Jobs);
+    renderCards('edu-grid', contentMap.Education);
+    renderCards('health-grid', contentMap.Health);
+  }
+
+  // Events sample
+  const events = [
+    {date:'Oct 25', title:'Cultural Festival', location:'Praga District'},
+    {date:'Oct 28', title:'Free Polish Classes', location:'Śródmieście'},
+    {date:'Nov 03', title:'Tech Meetup for Students', location:'PW Campus'}
+  ];
+  function loadEvents(){
+    const list=document.getElementById('eventList'); list.innerHTML='';
+    events.forEach(e=>{
+      const el=document.createElement('div'); el.className='card';
+      el.innerHTML = `<div class="pill">🗓 ${e.date}</div><h4>${e.title}</h4><p>📍 ${e.location}</p><span class="mini">More info →</span>`;
+      list.appendChild(el);
+    });
+  }
+  function filterEvents(){
+    const q=(document.getElementById('searchEvents').value||'').toLowerCase();
+    const list=document.getElementById('eventList'); list.innerHTML='';
+    events.filter(e=>e.title.toLowerCase().includes(q)).forEach(e=>{
+      const el=document.createElement('div'); el.className='card';
+      el.innerHTML = `<div class="pill">🗓 ${e.date}</div><h4>${e.title}</h4><p>📍 ${e.location}</p><span class="mini">More info →</span>`;
+      list.appendChild(el);
+    });
+  }
+
+  // Init
+  window.onload = ()=>{
+    // Keep sidebar closed by default
+    document.getElementById('sidebar').classList.remove('active');
+    document.getElementById('overlay').classList.remove('active');
+
+    // Render dashboard (if user already selected)
+    personalizeDashboard();
+    // Render static section pages
+    renderStaticSections();
+    // Events list
+    loadEvents();
+  };
+</script>
+</body>
+</html>
